@@ -1,0 +1,46 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Sample CloudFormation template for Ec2 instance
+
+Parameters:
+  InstanceTypeParameter:
+    Type: String
+    Default: t2.micro
+    AllowedValues:
+      - t2.micro
+      - m1.small
+      - m1.medium
+    Description: Enter instance type (default is t2.micro)
+
+  KeyName:
+    Description: Name of an existing EC2 KeyPair to enable SSH access to the instance
+    Type: AWS::EC2::KeyPair::KeyName
+    ConstraintDescription: must be the name of an existing EC2 KeyPair.
+    Default: devops  
+
+Mappings:
+  RegionMap:
+    us-east-1:
+      AMI: ami-0e2c8caa4b6378d8c
+    us-west-1:
+      AMI: ami-005fc0f236362e99f
+
+Resources:
+  MyEC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: !Ref InstanceTypeParameter
+      ImageId: !FindInMap [RegionMap, !Ref "AWS::Region", AMI]
+      KeyName: !Ref KeyName
+
+Outputs:
+  InstanceID:
+    Description: Instance ID of the EC2 instance
+    Value: !Ref MyEC2Instance
+
+  PublicDNS:
+    Description: Public DNSName of the newly created EC2 instance
+    Value: !GetAtt MyEC2Instance.PublicDnsName
+
+  PublicIP:
+    Description: Public IP address of the newly created EC2 instance
+    Value: !GetAtt MyEC2Instance.PublicIp    
